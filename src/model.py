@@ -55,8 +55,9 @@ class BaseModel(pl.LightningModule):
         self.initial_ln = nn.LayerNorm(embed_dim)
         self.lin = nn.Linear(embed_dim, 512)
         self.lin_1 = nn.Linear(512, 256)
-        self.attn_head = AttentionHead(256, 1)
-        self.clf_head = nn.Linear(256, 11)
+        self.lstm = nn.LSTM(input_size=256, hidden_size=128, num_layers=2, batch_first=True)
+        self.attn_head = AttentionHead(128, 1)
+        self.clf_head = nn.Linear(128, 11)
         self.kld = nn.KLDivLoss(reduction="batchmean")
         self.lr = 1e-3
 
@@ -64,6 +65,7 @@ class BaseModel(pl.LightningModule):
         x = self.initial_ln(embedding)
         x = self.lin(x)
         x = self.lin_1(x)
+        x, _ = self.lstm(x)  # capturing output and ignoring hidden states
         x_pool, x_attns = self.attn_head(x, non_mask, lens)
         x_pred = self.clf_head(x_pool)
         #print(x_pred, x_attns)
@@ -73,6 +75,7 @@ class BaseModel(pl.LightningModule):
         x = self.initial_ln(embedding)
         x = self.lin(x)
         x = self.lin_1(x)
+        x, _ = self.lstm(x)  # capturing output and ignoring hidden states
         x_pool, x_attns = self.attn_head(x, non_mask, lens)
         x_pred = self.clf_head(x_pool)
         #print(x_pred, x_attns)
