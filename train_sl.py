@@ -20,7 +20,8 @@ def train_model(model_attrs: ModelAttributes, datahandler:DataloaderHandler, out
     checkpoint_callback = ModelCheckpoint(
         monitor='bce_loss',
         dirpath=model_attrs.save_path,
-        filename= f"{outer_i}_1Layer",
+        filename=f"{outer_i}_1Layer",
+        # filepath=f"{model_attrs.save_path}/{outer_i}_1Layer",
         save_top_k=1,
         every_n_epochs=1,
         save_last=False,
@@ -29,7 +30,7 @@ def train_model(model_attrs: ModelAttributes, datahandler:DataloaderHandler, out
 
     early_stopping_callback = EarlyStopping(
          monitor='bce_loss',
-         patience=5, 
+         patience=5,
          mode='min'
     )
 
@@ -42,7 +43,9 @@ def train_model(model_attrs: ModelAttributes, datahandler:DataloaderHandler, out
                             early_stopping_callback
                         ],
                         precision=16,
-                        accelerator="auto")
+                        # auto_select_gpus=True,
+                        accelerator="auto"
+    )
     clf = model_attrs.class_type()
     trainer.fit(clf, train_dataloader, val_dataloader)
     return trainer
