@@ -57,7 +57,8 @@ def generate_embeddings(model_attrs: ModelAttributes):
     fasta_dict = read_fasta(EMBEDDINGS[model_attrs.model_type]["source_fasta"])
     test_df = pd.DataFrame(fasta_dict.items(), columns=['ACC', 'Sequence'])
     embed_dataset = FastaBatchedDatasetTorch(test_df)
-    embed_batches = embed_dataset.get_batch_indices(8196, extra_toks_per_seq=1)
+    #embed_batches = embed_dataset.get_batch_indices(8196, extra_toks_per_seq=1)
+    embed_batches = embed_dataset.get_batch_indices(64, extra_toks_per_seq=1)
     if model_attrs.model_type == FAST:
         embed_dataloader = torch.utils.data.DataLoader(embed_dataset, collate_fn=BatchConverter(model_attrs.alphabet), batch_sampler=embed_batches)
         embed_esm1b(embed_dataloader, EMBEDDINGS[model_attrs.model_type]["embeds"])
