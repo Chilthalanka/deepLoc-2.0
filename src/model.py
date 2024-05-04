@@ -54,7 +54,6 @@ class BaseModel(pl.LightningModule):
        
         self.initial_ln = nn.LayerNorm(embed_dim)
         self.lin = nn.Linear(embed_dim, 256)
-        # self.lin_1 = nn.Linear(512, 256)
         self.bi_lstm = nn.LSTM(input_size=256, hidden_size=128, num_layers=2, batch_first=True, bidirectional=True)
         self.attn_head = AttentionHead(256, 1)
         self.clf_head = nn.Linear(256, 11)
@@ -64,7 +63,6 @@ class BaseModel(pl.LightningModule):
     def forward(self, embedding, lens, non_mask):
         x = self.initial_ln(embedding)
         x = self.lin(x)
-        # x = self.lin_1(x)
         x, _ = self.bi_lstm(x)  # capturing output and ignoring hidden states
         x_pool, x_attns = self.attn_head(x, non_mask, lens)
         x_pred = self.clf_head(x_pool)
@@ -74,7 +72,6 @@ class BaseModel(pl.LightningModule):
     def predict(self, embedding, lens, non_mask):
         x = self.initial_ln(embedding)
         x = self.lin(x)
-        # x = self.lin_1(x)
         x, _ = self.bi_lstm(x)  # capturing output and ignoring hidden states
         x_pool, x_attns = self.attn_head(x, non_mask, lens)
         x_pred = self.clf_head(x_pool)
